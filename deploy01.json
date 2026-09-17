@@ -2,22 +2,62 @@
   "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
-    "azureUserName": { "type": "string" },
-    "azurePassword": { "type": "securestring" },
-    "ODLID": { "type": "string" },
-    "DeploymentID": { "type": "string" },
-    "adminUsername": { "type": "string" },
-    "adminPassword": { "type": "securestring" },
-    "trainerUserName": { "type": "string" },
-    "trainerUserPassword": { "type": "string" },
-    "foundryResourceName": { "type": "string", "defaultValue": "foundry-" },
-    "foundryProjectName": { "type": "string", "defaultValue": "foundry-project-" },
-    "chatDeploymentName": { "type": "string", "defaultValue": "memory-chat" },
-    "embeddingDeploymentName": { "type": "string", "defaultValue": "memory-embedding" },
-    "chatModelName": { "type": "string", "defaultValue": "gpt-5.2" },
-    "chatModelVersion": { "type": "string", "defaultValue": "2025-12-11" },
-    "embeddingModelName": { "type": "string", "defaultValue": "text-embedding-3-small" },
-    "embeddingModelVersion": { "type": "string", "defaultValue": "1" }
+    "azureUserName": {
+      "type": "string"
+    },
+    "azurePassword": {
+      "type": "securestring"
+    },
+    "ODLID": {
+      "type": "string"
+    },
+    "DeploymentID": {
+      "type": "string"
+    },
+    "adminUsername": {
+      "type": "string"
+    },
+    "adminPassword": {
+      "type": "securestring"
+    },
+    "trainerUserName": {
+      "type": "string"
+    },
+    "trainerUserPassword": {
+      "type": "string"
+    },
+    "foundryResourceName": {
+      "type": "string",
+      "defaultValue": "foundry-"
+    },
+    "foundryProjectName": {
+      "type": "string",
+      "defaultValue": "foundry-project-"
+    },
+    "chatDeploymentName": {
+      "type": "string",
+      "defaultValue": "memory-chat"
+    },
+    "embeddingDeploymentName": {
+      "type": "string",
+      "defaultValue": "memory-embedding"
+    },
+    "chatModelName": {
+      "type": "string",
+      "defaultValue": "gpt-5.2"
+    },
+    "chatModelVersion": {
+      "type": "string",
+      "defaultValue": "2025-12-11"
+    },
+    "embeddingModelName": {
+      "type": "string",
+      "defaultValue": "text-embedding-3-small"
+    },
+    "embeddingModelVersion": {
+      "type": "string",
+      "defaultValue": "1"
+    }
   },
   "variables": {
     "foundryResourceResourceName": "[concat(parameters('foundryResourceName'), parameters('DeploymentID'))]",
@@ -40,7 +80,9 @@
       "type": "Microsoft.Resources/tags",
       "apiVersion": "2021-04-01",
       "name": "default",
-      "properties": { "tags": "[variables('commonTags')]" }
+      "properties": {
+        "tags": "[variables('commonTags')]"
+      }
     },
     {
       "type": "Microsoft.Network/virtualNetworks",
@@ -48,8 +90,19 @@
       "name": "[variables('vnetName')]",
       "location": "[resourceGroup().location]",
       "properties": {
-        "addressSpace": { "addressPrefixes": [ "10.20.0.0/16" ] },
-        "subnets": [ { "name": "[variables('subnetName')]", "properties": { "addressPrefix": "10.20.1.0/24" } } ]
+        "addressSpace": {
+          "addressPrefixes": [
+            "10.20.0.0/16"
+          ]
+        },
+        "subnets": [
+          {
+            "name": "[variables('subnetName')]",
+            "properties": {
+              "addressPrefix": "10.20.1.0/24"
+            }
+          }
+        ]
       },
       "tags": "[variables('commonTags')]"
     },
@@ -58,10 +111,14 @@
       "apiVersion": "2024-05-01",
       "name": "[variables('publicipaddressname')]",
       "location": "[resourceGroup().location]",
-      "sku": { "name": "Standard" },
+      "sku": {
+        "name": "Standard"
+      },
       "properties": {
         "publicIPAllocationMethod": "Static",
-        "dnsSettings": { "domainNameLabel": "[toLower(concat('labvm-', parameters('DeploymentID')))]" }
+        "dnsSettings": {
+          "domainNameLabel": "[toLower(concat('labvm-', parameters('DeploymentID')))]"
+        }
       },
       "tags": "[variables('commonTags')]"
     },
@@ -75,14 +132,20 @@
         "[resourceId('Microsoft.Network/publicIPAddresses', variables('publicipaddressname'))]"
       ],
       "properties": {
-        "ipConfigurations": [ {
-          "name": "ipconfig1",
-          "properties": {
-            "privateIPAllocationMethod": "Dynamic",
-            "subnet": { "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('vnetName'), variables('subnetName'))]" },
-            "publicIPAddress": { "id": "[resourceId('Microsoft.Network/publicIPAddresses', variables('publicipaddressname'))]" }
+        "ipConfigurations": [
+          {
+            "name": "ipconfig1",
+            "properties": {
+              "privateIPAllocationMethod": "Dynamic",
+              "subnet": {
+                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('vnetName'), variables('subnetName'))]"
+              },
+              "publicIPAddress": {
+                "id": "[resourceId('Microsoft.Network/publicIPAddresses', variables('publicipaddressname'))]"
+              }
+            }
           }
-        } ]
+        ]
       },
       "tags": "[variables('commonTags')]"
     },
@@ -91,21 +154,50 @@
       "apiVersion": "2024-11-01",
       "name": "[variables('LabVMName')]",
       "location": "[resourceGroup().location]",
-      "plan": { "name": "win2019", "publisher": "spektra", "product": "cloudlabs-windows-jumpvm" },
-      "dependsOn": [ "[resourceId('Microsoft.Network/networkInterfaces', variables('nicName'))]" ],
+      "plan": {
+        "name": "win2019",
+        "publisher": "spektra",
+        "product": "cloudlabs-windows-jumpvm"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/networkInterfaces', variables('nicName'))]"
+      ],
       "properties": {
-        "hardwareProfile": { "vmSize": "Standard_B2s" },
+        "hardwareProfile": {
+          "vmSize": "Standard_B2s"
+        },
         "osProfile": {
           "computerName": "[variables('LabVMName')]",
           "adminUsername": "[parameters('adminUsername')]",
           "adminPassword": "[parameters('adminPassword')]",
-          "windowsConfiguration": { "enableAutomaticUpdates": true }
+          "windowsConfiguration": {
+            "enableAutomaticUpdates": true
+          }
         },
         "storageProfile": {
-          "imageReference": { "publisher": "Spektra", "offer": "cloudlabs-windows-jumpvm", "sku": "win2019", "version": "latest" },
-          "osDisk": { "createOption": "FromImage", "managedDisk": { "storageAccountType": "Standard_LRS" } }
+          "imageReference": {
+            "publisher": "Spektra",
+            "offer": "cloudlabs-windows-jumpvm",
+            "sku": "win2019",
+            "version": "latest"
+          },
+          "osDisk": {
+            "createOption": "FromImage",
+            "managedDisk": {
+              "storageAccountType": "Standard_LRS"
+            }
+          }
         },
-        "networkProfile": { "networkInterfaces": [ { "id": "[resourceId('Microsoft.Network/networkInterfaces', variables('nicName'))]", "properties": { "primary": true } } ] }
+        "networkProfile": {
+          "networkInterfaces": [
+            {
+              "id": "[resourceId('Microsoft.Network/networkInterfaces', variables('nicName'))]",
+              "properties": {
+                "primary": true
+              }
+            }
+          ]
+        }
       },
       "tags": "[variables('commonTags')]"
     },
@@ -114,13 +206,19 @@
       "apiVersion": "2024-11-01",
       "name": "[concat(variables('LabVMName'), '/CloudLabsCustomScript')]",
       "location": "[resourceGroup().location]",
-      "dependsOn": [ "[resourceId('Microsoft.Compute/virtualMachines', variables('LabVMName'))]" ],
+      "dependsOn": [
+        "[resourceId('Microsoft.Compute/virtualMachines', variables('LabVMName'))]"
+      ],
       "properties": {
         "publisher": "Microsoft.Compute",
         "type": "CustomScriptExtension",
         "typeHandlerVersion": "1.10",
         "autoUpgradeMinorVersion": true,
-        "settings": { "fileUris": [ "[variables('scripturl')]" ] },
+        "settings": {
+          "fileUris": [
+            "[variables('scripturl')]"
+          ]
+        },
         "protectedSettings": {
           "commandToExecute": "[concat('powershell.exe -ExecutionPolicy Bypass -File .\\psscript.ps1 -AzureUserName \"', parameters('azureUserName'), '\" -AzurePassword \"', parameters('azurePassword'), '\" -AzureTenantID \"', tenant().tenantId, '\" -AzureSubscriptionID \"', subscription().subscriptionId, '\" -ODLID \"', parameters('ODLID'), '\" -InstallCloudLabsShadow \"true\" -DeploymentID \"', parameters('DeploymentID'), '\" -vmAdminUsername \"', parameters('adminUsername'), '\" -vmAdminPassword \"', parameters('adminPassword'), '\" -trainerUserName \"', parameters('trainerUserName'), '\" -trainerUserPassword \"', parameters('trainerUserPassword'), '\"')]"
         }
@@ -132,8 +230,12 @@
       "name": "[variables('foundryResourceResourceName')]",
       "location": "[resourceGroup().location]",
       "kind": "AIServices",
-      "identity": { "type": "SystemAssigned" },
-      "sku": { "name": "S0" },
+      "identity": {
+        "type": "SystemAssigned"
+      },
+      "sku": {
+        "name": "S0"
+      },
       "properties": {
         "allowProjectManagement": true,
         "customSubDomainName": "[variables('foundryResourceResourceName')]",
@@ -145,55 +247,60 @@
       "tags": "[variables('commonTags')]"
     },
     {
-  "type": "Microsoft.CognitiveServices/accounts/deployments",
-  "apiVersion": "2025-06-01",
-  "name": "[concat(variables('foundryResourceResourceName'), '/', parameters('chatDeploymentName'))]",
-  "dependsOn": [
-    "[resourceId('Microsoft.CognitiveServices/accounts', variables('foundryResourceResourceName'))]"
-  ],
-  "sku": {
-    "name": "GlobalStandard",
-    "capacity": 300
-  },
-  "properties": {
-    "model": {
-      "format": "OpenAI",
-      "name": "[parameters('chatModelName')]",
-      "version": "[parameters('chatModelVersion')]"
+      "type": "Microsoft.CognitiveServices/accounts/deployments",
+      "apiVersion": "2025-06-01",
+      "name": "[concat(variables('foundryResourceResourceName'), '/', parameters('chatDeploymentName'))]",
+      "dependsOn": [
+        "[resourceId('Microsoft.CognitiveServices/accounts', variables('foundryResourceResourceName'))]"
+      ],
+      "sku": {
+        "name": "GlobalStandard",
+        "capacity": 300
+      },
+      "properties": {
+        "model": {
+          "format": "OpenAI",
+          "name": "[parameters('chatModelName')]",
+          "version": "[parameters('chatModelVersion')]"
+        },
+        "versionUpgradeOption": "NoAutoUpgrade"
+      },
+      "tags": "[variables('commonTags')]"
     },
-    "versionUpgradeOption": "NoAutoUpgrade"
-  },
-  "tags": "[variables('commonTags')]"
-},
-{
-  "type": "Microsoft.CognitiveServices/accounts/deployments",
-  "apiVersion": "2025-06-01",
-  "name": "[concat(variables('foundryResourceResourceName'), '/', parameters('embeddingDeploymentName'))]",
-  "dependsOn": [
-    "[resourceId('Microsoft.CognitiveServices/accounts', variables('foundryResourceResourceName'))]",
-    "[resourceId('Microsoft.CognitiveServices/accounts/deployments', variables('foundryResourceResourceName'), parameters('chatDeploymentName'))]"
-  ],
-  "sku": {
-    "name": "GlobalStandard",
-    "capacity": 1
-  },
-  "properties": {
-    "model": {
-      "format": "OpenAI",
-      "name": "[parameters('embeddingModelName')]",
-      "version": "[parameters('embeddingModelVersion')]"
+    {
+      "type": "Microsoft.CognitiveServices/accounts/deployments",
+      "apiVersion": "2025-06-01",
+      "name": "[concat(variables('foundryResourceResourceName'), '/', parameters('embeddingDeploymentName'))]",
+      "dependsOn": [
+        "[resourceId('Microsoft.CognitiveServices/accounts', variables('foundryResourceResourceName'))]",
+        "[resourceId('Microsoft.CognitiveServices/accounts/deployments', variables('foundryResourceResourceName'), parameters('chatDeploymentName'))]"
+      ],
+      "sku": {
+        "name": "GlobalStandard",
+        "capacity": 1
+      },
+      "properties": {
+        "model": {
+          "format": "OpenAI",
+          "name": "[parameters('embeddingModelName')]",
+          "version": "[parameters('embeddingModelVersion')]"
+        },
+        "versionUpgradeOption": "NoAutoUpgrade"
+      },
+      "tags": "[variables('commonTags')]"
     },
-    "versionUpgradeOption": "NoAutoUpgrade"
-  },
-  "tags": "[variables('commonTags')]"
-}
     {
       "type": "Microsoft.CognitiveServices/accounts/projects",
       "apiVersion": "2025-06-01",
       "name": "[concat(variables('foundryResourceResourceName'), '/', variables('foundryProjectResourceName'))]",
       "location": "[resourceGroup().location]",
-      "identity": { "type": "SystemAssigned" },
-      "properties": { "description": "[concat('CloudLabs Microsoft Foundry project for deployment ', parameters('DeploymentID'))]", "displayName": "[variables('foundryProjectResourceName')]" },
+      "identity": {
+        "type": "SystemAssigned"
+      },
+      "properties": {
+        "description": "[concat('CloudLabs Microsoft Foundry project for deployment ', parameters('DeploymentID'))]",
+        "displayName": "[variables('foundryProjectResourceName')]"
+      },
       "dependsOn": [
         "[resourceId('Microsoft.CognitiveServices/accounts', variables('foundryResourceResourceName'))]",
         "[resourceId('Microsoft.CognitiveServices/accounts/deployments', variables('foundryResourceResourceName'), parameters('chatDeploymentName'))]",
@@ -203,42 +310,34 @@
     }
   ],
   "outputs": {
-
     "DeploymentID": {
       "type": "string",
       "value": "[parameters('DeploymentID')]"
     },
-
     "LabVM Admin Username": {
       "type": "string",
       "value": "[parameters('adminUsername')]"
     },
-
     "LabVM Admin Password": {
       "type": "string",
       "value": "[parameters('adminPassword')]"
     },
-
     "LabVM DNS Name": {
       "type": "string",
       "value": "[reference(resourceId('Microsoft.Network/publicIPAddresses', variables('publicIpAddressName'))).dnsSettings.fqdn]"
     },
-
     "Trainer User Name": {
       "type": "string",
       "value": "[parameters('trainerUserName')]"
     },
-
     "Trainer Password": {
       "type": "string",
       "value": "[parameters('trainerUserPassword')]"
     },
-
     "Foundry Resource Name": {
       "type": "string",
       "value": "[variables('foundryResourceName')]"
     },
-
     "Foundry Project Name": {
       "type": "string",
       "value": "[variables('foundryProjectName')]"
