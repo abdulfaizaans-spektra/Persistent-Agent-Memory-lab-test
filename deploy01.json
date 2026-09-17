@@ -145,23 +145,48 @@
       "tags": "[variables('commonTags')]"
     },
     {
-      "type": "Microsoft.CognitiveServices/accounts/deployments",
-      "apiVersion": "2025-06-01",
-      "name": "[concat(variables('foundryResourceResourceName'), '/', parameters('chatDeploymentName'))]",
-      "dependsOn": [ "[resourceId('Microsoft.CognitiveServices/accounts', variables('foundryResourceResourceName'))]" ],
-      "sku": { "name": "GlobalStandard", "capacity": 300 },
-      "properties": { "model": { "format": "OpenAI", "name": "[parameters('chatModelName')]", "version": "[parameters('chatModelVersion')]" }, "versionUpgradeOption": "NoAutoUpgrade" },
-      "tags": "[variables('commonTags')]"
+  "type": "Microsoft.CognitiveServices/accounts/deployments",
+  "apiVersion": "2025-06-01",
+  "name": "[concat(variables('foundryResourceResourceName'), '/', parameters('chatDeploymentName'))]",
+  "dependsOn": [
+    "[resourceId('Microsoft.CognitiveServices/accounts', variables('foundryResourceResourceName'))]"
+  ],
+  "sku": {
+    "name": "GlobalStandard",
+    "capacity": 300
+  },
+  "properties": {
+    "model": {
+      "format": "OpenAI",
+      "name": "[parameters('chatModelName')]",
+      "version": "[parameters('chatModelVersion')]"
     },
-    {
-      "type": "Microsoft.CognitiveServices/accounts/deployments",
-      "apiVersion": "2025-06-01",
-      "name": "[concat(variables('foundryResourceResourceName'), '/', parameters('embeddingDeploymentName'))]",
-      "dependsOn": [ "[resourceId('Microsoft.CognitiveServices/accounts', variables('foundryResourceResourceName'))]" ],
-      "sku": { "name": "GlobalStandard", "capacity": 10 },
-      "properties": { "model": { "format": "OpenAI", "name": "[parameters('embeddingModelName')]", "version": "[parameters('embeddingModelVersion')]" }, "versionUpgradeOption": "NoAutoUpgrade" },
-      "tags": "[variables('commonTags')]"
+    "versionUpgradeOption": "NoAutoUpgrade"
+  },
+  "tags": "[variables('commonTags')]"
+},
+{
+  "type": "Microsoft.CognitiveServices/accounts/deployments",
+  "apiVersion": "2025-06-01",
+  "name": "[concat(variables('foundryResourceResourceName'), '/', parameters('embeddingDeploymentName'))]",
+  "dependsOn": [
+    "[resourceId('Microsoft.CognitiveServices/accounts', variables('foundryResourceResourceName'))]",
+    "[resourceId('Microsoft.CognitiveServices/accounts/deployments', variables('foundryResourceResourceName'), parameters('chatDeploymentName'))]"
+  ],
+  "sku": {
+    "name": "GlobalStandard",
+    "capacity": 1
+  },
+  "properties": {
+    "model": {
+      "format": "OpenAI",
+      "name": "[parameters('embeddingModelName')]",
+      "version": "[parameters('embeddingModelVersion')]"
     },
+    "versionUpgradeOption": "NoAutoUpgrade"
+  },
+  "tags": "[variables('commonTags')]"
+}
     {
       "type": "Microsoft.CognitiveServices/accounts/projects",
       "apiVersion": "2025-06-01",
