@@ -1,0 +1,56 @@
+{
+  "properties": {
+    "displayName": "Deny Foundry Model Deployments Except GPT-5.2 and Text Embedding 3 Small",
+    "policyType": "Custom",
+    "mode": "All",
+    "description": "Denies creation or modification of Microsoft Foundry model deployments except GPT-5.2 with a maximum capacity of 150,000 TPM or text-embedding-3-small with a maximum capacity of 1,000 TPM.",
+    "metadata": {
+      "category": "Microsoft Foundry",
+      "version": "1.0.0"
+    },
+    "parameters": {},
+    "policyRule": {
+      "if": {
+        "allOf": [
+          {
+            "field": "type",
+            "equals": "Microsoft.CognitiveServices/accounts/deployments"
+          },
+          {
+            "not": {
+              "anyOf": [
+                {
+                  "allOf": [
+                    {
+                      "field": "Microsoft.CognitiveServices/accounts/deployments/model.name",
+                      "equals": "gpt-5.2"
+                    },
+                    {
+                      "field": "Microsoft.CognitiveServices/accounts/deployments/sku.capacity",
+                      "lessOrEquals": 300
+                    }
+                  ]
+                },
+                {
+                  "allOf": [
+                    {
+                      "field": "Microsoft.CognitiveServices/accounts/deployments/model.name",
+                      "equals": "text-embedding-3-small"
+                    },
+                    {
+                      "field": "Microsoft.CognitiveServices/accounts/deployments/sku.capacity",
+                      "lessOrEquals": 1
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "then": {
+        "effect": "deny"
+      }
+    }
+  }
+}
