@@ -14,8 +14,8 @@
     "foundryProjectName": { "value": "foundry-project" },
     "chatDeploymentName": { "value": "memory-chat" },
     "embeddingDeploymentName": { "value": "memory-embedding" },
-    "chatModelName": { "value": "gpt-4o" },
-    "chatModelVersion": { "value": "2024-11-20" },
+    "chatModelName": { "value": "gpt-5.2" },
+    "chatModelVersion": { "value": "2025-12-11" },
     "embeddingModelName": { "value": "text-embedding-3-small" },
     "embeddingModelVersion": { "value": "1" }
   }
