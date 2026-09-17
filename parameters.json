@@ -1,0 +1,22 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "azureUserName": { "value": "GET-AZUSER-UPN" },
+    "azurePassword": { "value": "GET-AZUSER-PASSWORD" },
+    "ODLID": { "value": "GET-ODL-ID" },
+    "DeploymentID": { "value": "GET-DEPLOYMENT-ID" },
+    "adminUsername": { "value": "azureuser" },
+    "adminPassword": { "value": "GEN-PASSWORD" },
+    "trainerUserName": { "value": "instructor" },
+    "trainerUserPassword": { "value": "GEN-PASSWORD" },
+    "foundryResourceName": { "value": "foundrymemory" },
+    "foundryProjectName": { "value": "foundry-project" },
+    "chatDeploymentName": { "value": "memory-chat" },
+    "embeddingDeploymentName": { "value": "memory-embedding" },
+    "chatModelName": { "value": "gpt-4o" },
+    "chatModelVersion": { "value": "2024-11-20" },
+    "embeddingModelName": { "value": "text-embedding-3-small" },
+    "embeddingModelVersion": { "value": "1" }
+  }
+}
