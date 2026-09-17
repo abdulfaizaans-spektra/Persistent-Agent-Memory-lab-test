@@ -1,0 +1,117 @@
+{
+  "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "azureUserName": { "type": "string" },
+    "azurePassword": { "type": "securestring" },
+    "ODLID": { "type": "string" },
+    "DeploymentID": { "type": "string" },
+    "adminUsername": { "type": "string" },
+    "adminPassword": { "type": "securestring" },
+    "trainerUserName": { "type": "string" },
+    "trainerUserPassword": { "type": "string" },
+    "foundryResourceName": { "type": "string", "defaultValue": "foundrymemory" },
+    "foundryProjectName": { "type": "string", "defaultValue": "foundry-project" },
+    "chatDeploymentName": { "type": "string", "defaultValue": "memory-chat" },
+    "embeddingDeploymentName": { "type": "string", "defaultValue": "memory-embedding" },
+    "chatModelName": { "type": "string", "defaultValue": "gpt-4o" },
+    "chatModelVersion": { "type": "string", "defaultValue": "2024-11-20" },
+    "embeddingModelName": { "type": "string", "defaultValue": "text-embedding-3-small" },
+    "embeddingModelVersion": { "type": "string", "defaultValue": "1" }
+  },
+  "variables": {
+    "foundryResourceResourceName": "[concat(parameters('foundryResourceName'), parameters('DeploymentID'))]",
+    "foundryProjectResourceName": "[concat(parameters('foundryProjectName'), parameters('DeploymentID'))]",
+    "commonTags": {
+      "CloudLabsDeploymentId": "[parameters('DeploymentID')]",
+      "CloudLabsLab": "FoundryAgentMemory",
+      "CloudLabsStage": "1",
+      "CloudLabsProvisioning": "PrecreatedFoundryEnvironment"
+    }
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Resources/tags",
+      "apiVersion": "2021-04-01",
+      "name": "default",
+      "properties": { "tags": "[variables('commonTags')]" }
+    },
+    {
+      "type": "Microsoft.CognitiveServices/accounts",
+      "apiVersion": "2025-06-01",
+      "name": "[variables('foundryResourceResourceName')]",
+      "location": "[resourceGroup().location]",
+      "kind": "AIServices",
+      "identity": { "type": "SystemAssigned" },
+      "sku": { "name": "S0" },
+      "properties": {
+        "allowProjectManagement": true,
+        "customSubDomainName": "[variables('foundryResourceResourceName')]",
+        "disableLocalAuth": false,
+        "dynamicThrottlingEnabled": true,
+        "publicNetworkAccess": "Enabled",
+        "restrictOutboundNetworkAccess": false
+      },
+      "tags": "[variables('commonTags')]"
+    },
+    {
+      "type": "Microsoft.CognitiveServices/accounts/deployments",
+      "apiVersion": "2025-06-01",
+      "name": "[concat(variables('foundryResourceResourceName'), '/', parameters('chatDeploymentName'))]",
+      "dependsOn": [ "[resourceId('Microsoft.CognitiveServices/accounts', variables('foundryResourceResourceName'))]" ],
+      "sku": { "name": "GlobalStandard", "capacity": 10 },
+      "properties": {
+        "model": { "format": "OpenAI", "name": "[parameters('chatModelName')]", "version": "[parameters('chatModelVersion')]" },
+        "versionUpgradeOption": "NoAutoUpgrade"
+      },
+      "tags": "[variables('commonTags')]"
+    },
+    {
+      "type": "Microsoft.CognitiveServices/accounts/deployments",
+      "apiVersion": "2025-06-01",
+      "name": "[concat(variables('foundryResourceResourceName'), '/', parameters('embeddingDeploymentName'))]",
+      "dependsOn": [ "[resourceId('Microsoft.CognitiveServices/accounts', variables('foundryResourceResourceName'))]" ],
+      "sku": { "name": "GlobalStandard", "capacity": 10 },
+      "properties": {
+        "model": { "format": "OpenAI", "name": "[parameters('embeddingModelName')]", "version": "[parameters('embeddingModelVersion')]" },
+        "versionUpgradeOption": "NoAutoUpgrade"
+      },
+      "tags": "[variables('commonTags')]"
+    },
+    {
+      "type": "Microsoft.CognitiveServices/accounts/projects",
+      "apiVersion": "2025-06-01",
+      "name": "[concat(variables('foundryResourceResourceName'), '/', variables('foundryProjectResourceName'))]",
+      "location": "[resourceGroup().location]",
+      "identity": { "type": "SystemAssigned" },
+      "properties": {
+        "description": "[concat('CloudLabs Microsoft Foundry project for deployment ', parameters('DeploymentID'))]",
+        "displayName": "[variables('foundryProjectResourceName')]"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.CognitiveServices/accounts', variables('foundryResourceResourceName'))]",
+        "[resourceId('Microsoft.CognitiveServices/accounts/deployments', variables('foundryResourceResourceName'), parameters('chatDeploymentName'))]",
+        "[resourceId('Microsoft.CognitiveServices/accounts/deployments', variables('foundryResourceResourceName'), parameters('embeddingDeploymentName'))]"
+      ],
+      "tags": "[variables('commonTags')]"
+    }
+  ],
+  "outputs": {
+    "ResourceGroupName": { "type": "string", "value": "[resourceGroup().name]" },
+    "SubscriptionID": { "type": "string", "value": "[subscription().subscriptionId]" },
+    "DeploymentID": { "type": "string", "value": "[parameters('DeploymentID')]" },
+    "FoundryResourceName": { "type": "string", "value": "[variables('foundryResourceResourceName')]" },
+    "FoundryResourceId": { "type": "string", "value": "[resourceId('Microsoft.CognitiveServices/accounts', variables('foundryResourceResourceName'))]" },
+    "FoundryResourceEndpoint": { "type": "string", "value": "[concat('https://', variables('foundryResourceResourceName'), '.services.ai.azure.com/')]" },
+    "FoundryProjectName": { "type": "string", "value": "[variables('foundryProjectResourceName')]" },
+    "FoundryProjectResourceId": { "type": "string", "value": "[resourceId('Microsoft.CognitiveServices/accounts/projects', variables('foundryResourceResourceName'), variables('foundryProjectResourceName'))]" },
+    "FoundryProjectEndpoint": { "type": "string", "value": "[concat('https://', variables('foundryResourceResourceName'), '.services.ai.azure.com/api/projects/', variables('foundryProjectResourceName'))]" },
+    "FoundryProjectPortalIdentifier": { "type": "string", "value": "[concat('https://ai.azure.com/?project=', resourceId('Microsoft.CognitiveServices/accounts/projects', variables('foundryResourceResourceName'), variables('foundryProjectResourceName')))]" },
+    "MemoryChatDeploymentName": { "type": "string", "value": "[parameters('chatDeploymentName')]" },
+    "MemoryChatModelName": { "type": "string", "value": "[parameters('chatModelName')]" },
+    "MemoryChatModelVersion": { "type": "string", "value": "[parameters('chatModelVersion')]" },
+    "MemoryEmbeddingDeploymentName": { "type": "string", "value": "[parameters('embeddingDeploymentName')]" },
+    "MemoryEmbeddingModelName": { "type": "string", "value": "[parameters('embeddingModelName')]" },
+    "MemoryEmbeddingModelVersion": { "type": "string", "value": "[parameters('embeddingModelVersion')]" }
+  }
+}
