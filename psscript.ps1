@@ -73,14 +73,16 @@ try {
         $InstallCloudLabsShadow -ne '0' -and $trainerUserName -and $trainerUserPassword) {
         $securePassword = ConvertTo-SecureString $trainerUserPassword -AsPlainText -Force
         $existing = Get-LocalUser -Name $trainerUserName -ErrorAction SilentlyContinue
-        if (-not $existing) {
+        if (-not $existing) { 
             New-LocalUser -Name $trainerUserName -Password $securePassword `
-                -PasswordNeverExpires -AccountNeverExpires -Description 'CloudLabs instructor VM Shadow account' | Out-Null
-        } else {
-            Set-LocalUser -Name $trainerUserName -Password $securePassword -PasswordNeverExpires
+                -PasswordNeverExpires $true `
+                -AccountNeverExpires $true `
+                -Description 'CloudLabs instructor VM Shadow account' | Out-Null 
+        } else { 
+            Set-LocalUser -Name $trainerUserName `
+                -Password $securePassword `
+                -PasswordNeverExpires $true
         }
-        Add-LocalGroupMember -Group 'Remote Desktop Users' -Member $trainerUserName -ErrorAction SilentlyContinue
-    }
 
     Write-Output 'Stage 1 minimal portal-first bootstrap completed.'
 }
