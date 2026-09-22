@@ -336,11 +336,11 @@
     },
     "Foundry Resource Name": {
       "type": "string",
-      "value": "[variables('foundryResourceName')]"
+      "value": "[variables('foundryResourceResourceName')]"
     },
     "Foundry Project Name": {
       "type": "string",
-      "value": "[variables('foundryProjectName')]"
+      "value": "[variables('foundryProjectResourceName')]"
     }
   }
 }
