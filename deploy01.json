@@ -44,11 +44,11 @@
     },
     "chatModelName": {
       "type": "string",
-      "defaultValue": "gpt-5.2"
+      "defaultValue": "gpt-5.4"
     },
     "chatModelVersion": {
       "type": "string",
-      "defaultValue": "2025-12-11"
+      "defaultValue": "2026-03-05"
     },
     "embeddingModelName": {
       "type": "string",
